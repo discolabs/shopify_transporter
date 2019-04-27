@@ -1,0 +1,18 @@
+platform_type: Bigcommerce
+object_types:
+  order:
+    record_key: 'Order ID'
+    pipeline_stages:
+      - TopLevelAttributes
+
+extract_configuration:
+  soap:
+    hostname:
+    username:
+    api_key:
+  database:
+    host:
+    port: 3306
+    user:
+    password:
+    database:
