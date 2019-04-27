@@ -34,6 +34,8 @@ module ShopifyTransporter
 
             ORDER_ORIGINATED_FROM = 'BigCommerce'
 
+            ORDER_TIMEZONE_OFFSET = ENV['ORDER_TIMEZONE_OFFSET'] || '+00:00'
+
             CANCELLED_ORDER_STATUSES = ['Cancelled']
             COMPLETED_ORDER_STATUSES = ['Completed', 'Shipped']
 
@@ -86,7 +88,7 @@ module ShopifyTransporter
             end
 
             def processed_at(hash)
-              DateTime.strptime("#{hash['Order Date']} #{hash['Order Time']}+10:00", "%m/%d/%Y %H:%M:%S%z")
+              DateTime.strptime("#{hash['Order Date']} #{hash['Order Time']}#{ORDER_TIMEZONE_OFFSET}", "%m/%d/%Y %H:%M:%S%z")
             end
 
             def cancelled?(hash)

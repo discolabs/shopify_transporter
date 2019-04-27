@@ -4,6 +4,7 @@ object_types:
     record_key: 'Order ID'
     pipeline_stages:
       - TopLevelAttributes
+      - LineItems
 
 extract_configuration:
   soap:
