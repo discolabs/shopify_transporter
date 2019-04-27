@@ -7,6 +7,7 @@ object_types:
       - LineItems
       - AddressesAttribute
       - Transactions
+      - Discounts
 
 extract_configuration:
   soap:
