@@ -5,6 +5,7 @@ object_types:
     pipeline_stages:
       - TopLevelAttributes
       - LineItems
+      - AddressesAttribute
 
 extract_configuration:
   soap:
