@@ -23,13 +23,33 @@ module ShopifyTransporter
                 {
                   code: shipping_method_code(input),
                   title: input['Ship Method'],
-                  price: input['Shipping Cost (inc tax)'].to_f + input['Handling Cost (inc tax)'].to_f
+                  price: input['Shipping Cost (inc tax)'].to_f + input['Handling Cost (inc tax)'].to_f,
+                  tax_lines: tax_lines(input)
                 }.stringify_keys,
               ]
             end
 
             def shipping_method_code(input)
               input['Ship Method'].downcase.gsub(/[^a-zA-Z0-9]/, '_')
+            end
+
+            def tax_lines(input)
+              [
+                {
+                  title: 'Tax',
+                  price: shipping_tax_total(input),
+                  rate: tax_percentage(input),
+                }.stringify_keys
+              ]
+            end
+
+            def shipping_tax_total(input)
+              input['Shipping Cost (inc tax)'].to_f - input['Shipping Cost (ex tax)'].to_f
+            end
+
+            def tax_percentage(input)
+              return 0.0 if input['Order Total (ex tax)'].to_f.zero?
+              (input['Order Total (inc tax)'].to_f - input['Order Total (ex tax)'].to_f) / input['Order Total (ex tax)'].to_f
             end
 
         end

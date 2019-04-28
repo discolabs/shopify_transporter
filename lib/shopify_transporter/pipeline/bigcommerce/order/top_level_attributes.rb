@@ -18,11 +18,12 @@ module ShopifyTransporter
                 processed_at: processed_at(hash),
                 subtotal_price: hash['Subtotal (inc tax)'],
                 total_tax: hash['Tax Total'],
+                taxes_included: true,
                 total_price: hash['Order Total (inc tax)'],
                 source_name: ORDER_ORIGINATED_FROM,
                 total_weight: hash['Combined Product Weight'],
                 financial_status: financial_status(hash),
-                fulfillment_status: fulfillment_status(hash),
+                fulfillment_status: fulfillment_status(hash)
               }.stringify_keys
             )
             customer = build_customer(hash)
@@ -79,6 +80,33 @@ module ShopifyTransporter
               status
             end
 
+            def tax_lines(hash)
+              [
+                {
+                  title: 'Tax',
+                  price: line_item_tax_total(hash),
+                  rate: tax_percentage(hash),
+                }.stringify_keys
+              ]
+            end
+
+            def tax_total(hash)
+              hash['Tax Total'].to_f
+            end
+
+            def line_item_tax_total(hash)
+              tax_total(hash) - shipping_tax_total(hash)
+            end
+
+            def shipping_tax_total(hash)
+              hash['Shipping Cost (inc tax)'].to_f - hash['Shipping Cost (ex tax)'].to_f
+            end
+
+            def tax_percentage(hash)
+              return 0.0 if hash['Order Total (ex tax)'].to_f.zero?
+              (hash['Order Total (inc tax)'].to_f - hash['Order Total (ex tax)'].to_f) / hash['Order Total (ex tax)'].to_f
+            end
+
             def cancelled_at(hash)
               processed_at(hash) if cancelled?(hash)
             end
@@ -88,7 +116,7 @@ module ShopifyTransporter
             end
 
             def processed_at(hash)
-              DateTime.strptime("#{hash['Order Date']} #{hash['Order Time']}#{ORDER_TIMEZONE_OFFSET}", "%m/%d/%Y %H:%M:%S%z")
+              DateTime.strptime("#{hash['Order Date']} #{hash['Order Time']}#{ORDER_TIMEZONE_OFFSET}", "%m/%d/%Y %H:%M:%S%z").iso8601
             end
 
             def cancelled?(hash)
